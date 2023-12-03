@@ -37,6 +37,14 @@ export const registrationUser = CatchAsyncError(
         path.join(__dirname, "../mails/activation-mail.ejs"),
         data
       );
+      try {
+        await sendMail({
+          email: user.email,
+          subject: "Activate your account",
+          template: "activation-mail.ejs",
+          data,
+        });
+      } catch (error) {}
     } catch (error: any) {
       return next(new ErrorHandler(error.message, 400));
     }
