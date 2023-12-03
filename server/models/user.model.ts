@@ -69,3 +69,10 @@ userSchema.pre<IUser>("save", async function (next) {
   this.password = await bcrypt.hash(this.password, 10);
   next();
 });
+
+//compare password
+userSchema.methods.comparePasswords = async function (
+  enteredpassword: string
+): Promise<boolean> {
+  return await bcrypt.compare(enteredpassword, this.password);
+};
