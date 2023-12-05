@@ -1,3 +1,4 @@
+require("dotenv").config();
 import { Request, Response, NextFunction } from "express";
 import { CatchAsyncError } from "./catchAsyncErrors";
 import ErrorHandler from "../utils/ErrorHandler";
@@ -10,9 +11,7 @@ export const isAutheticated = CatchAsyncError(
     const access_token = req.cookies.access_token as string;
 
     if (!access_token) {
-      return next(
-        new ErrorHandler("Please login to access this resource", 400)
-      );
+      return next(new ErrorHandler("Please login to acess this resource", 400));
     }
 
     const decoded = jwt.verify(
@@ -23,12 +22,12 @@ export const isAutheticated = CatchAsyncError(
     if (!decoded) {
       return next(new ErrorHandler("access token is not valid", 400));
     }
-
-    const user = await redis.get(decoded._id);
+    const user = await redis.get(decoded.id);
 
     if (!user) {
       return next(new ErrorHandler("user not found", 400));
     }
+
     req.user = JSON.parse(user);
 
     next();
