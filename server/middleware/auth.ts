@@ -24,12 +24,12 @@ export const isAutheticated = CatchAsyncError(
       return next(new ErrorHandler("access token is not valid", 400));
     }
 
-    const User = await redis.get(decoded._id);
+    const user = await redis.get(decoded._id);
 
-    if (!User) {
+    if (!user) {
       return next(new ErrorHandler("user not found", 400));
     }
-    req.user = JSON.parse(User);
+    req.user = JSON.parse(user);
 
     next();
   }
