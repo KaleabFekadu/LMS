@@ -16,8 +16,8 @@ export interface IUser extends Document {
   };
   role: string;
   isVerified: boolean;
-  courses: Array<{ courseID: string }>;
-  comparePasswords: (password: string) => Promise<boolean>;
+  courses: Array<{ courseId: string }>;
+  comparePassword: (password: string) => Promise<boolean>;
   SignAccessToken: () => string;
   SignRefreshToken: () => string;
 }
@@ -58,7 +58,7 @@ const userSchema: Schema<IUser> = new mongoose.Schema(
     },
     courses: [
       {
-        courseID: String,
+        courseId: String,
       },
     ],
   },
@@ -94,7 +94,7 @@ userSchema.methods.SignRefreshToken = function () {
 };
 
 //compare password
-userSchema.methods.comparePasswords = async function (
+userSchema.methods.comparePassword = async function (
   enteredpassword: string
 ): Promise<boolean> {
   return await bcrypt.compare(enteredpassword, this.password);

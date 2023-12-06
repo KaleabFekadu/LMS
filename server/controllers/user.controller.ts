@@ -11,7 +11,7 @@ import { sendToken } from "../utils/jwt";
 import { redis } from "../utils/redis";
 
 // register user
-interface IRegisteationBody {
+interface IRegistrationBody {
   name: string;
   email: string;
   password: string;
@@ -27,7 +27,7 @@ export const registrationUser = CatchAsyncError(
       if (isEmailExist) {
         return next(new ErrorHandler("Email already exist", 400));
       }
-      const user: IRegisteationBody = {
+      const user: IRegistrationBody = {
         name,
         email,
         password,
@@ -142,7 +142,7 @@ export const loginUser = CatchAsyncError(
         return next(new ErrorHandler("Invalid email or password", 400));
       }
 
-      const isPasswordMatch = await user.comparePasswords(password);
+      const isPasswordMatch = await user.comparePassword(password);
       if (!isPasswordMatch) {
         return next(new ErrorHandler("Invalid email or password", 400));
       }
