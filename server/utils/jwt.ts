@@ -46,8 +46,8 @@ export const sendToken = (user: IUser, statusCode: number, res: Response) => {
     accessTokenOptions.secure = true;
   }
 
-  res.cookie("accessToken", accessToken, accessTokenOptions);
-  res.cookie("refreshToken", refreshToken, refreshTokenOptions);
+  res.cookie("access_token", accessToken, accessTokenOptions);
+  res.cookie("refresh_token", refreshToken, refreshTokenOptions);
   res.status(statusCode).json({
     success: true,
     user,
