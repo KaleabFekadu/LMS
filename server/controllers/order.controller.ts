@@ -44,7 +44,7 @@ export const createOrder = CatchAsyncError(
           _id: course._id.toString().slice(0, 6),
           name: course.name,
           price: course.price,
-          date: new Date().toLocaleDateString(`en-US`, {
+          date: new Date().toLocaleDateString("en-US", {
             year: "numeric",
             month: "long",
             day: "numeric",
@@ -79,8 +79,14 @@ export const createOrder = CatchAsyncError(
         title: "New Order",
         message: `You have a new order from ${course?.name}`,
       });
-      //prettier-ignore
-      course.purchased ? course.purchased += 1 : course.purchased;
+
+      if (course.purchased) {
+        course.purchased += 1;
+      } else {
+        course.purchased = 1; // Initialize to 1 if it's the first purchase
+      }
+
+      await course.save();
 
       await course.save();
 
