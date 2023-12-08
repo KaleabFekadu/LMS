@@ -21,9 +21,7 @@ app.use(
   })
 );
 //routers
-app.use("/api/v1", userRouter);
-app.use("/api/v1", courseRouter);
-app.use("/api/v1", orderRouter);
+app.use("/api/v1", userRouter, orderRouter, courseRouter);
 
 //tesing api
 app.get("/test", (req: Request, res: Response, next: NextFunction) => {

@@ -44,7 +44,7 @@ export const createOrder = CatchAsyncError(
           _id: course._id.toString().slice(0, 6),
           name: course.name,
           price: course.price,
-          date: new Date().toLocaleDateString("en-US", {
+          date: new Date().toLocaleDateString(`en-US`, {
             year: "numeric",
             month: "long",
             day: "numeric",
@@ -81,6 +81,7 @@ export const createOrder = CatchAsyncError(
       });
       //prettier-ignore
       course.purchased ? course.purchased += 1 : course.purchased;
+
       await course.save();
 
       newOrder(data, res, next);
