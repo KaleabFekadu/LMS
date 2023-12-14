@@ -2,12 +2,13 @@
 import React, { FC, useState } from "react";
 import Heading from "./utils/Heading";
 import Header from "./components/Header";
+import Hero from "./components/Route/Hero"
 
 interface Props { }
 
 const Page: FC<Props> = (props) => {
   const [open, setOpen] = useState(false);
-  const [activeItem, setActive] = useState(0);
+  const [activeItem, setActiveItem] = useState(0);
   return (
     <div>
       <Heading
@@ -19,6 +20,9 @@ const Page: FC<Props> = (props) => {
         open={open}
         setOpen={setOpen}
         activeItem={activeItem} />
+      <Hero />
     </div>
   )
 };
+
+export default Page;
