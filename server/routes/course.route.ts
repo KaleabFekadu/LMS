@@ -7,15 +7,19 @@ import {
   addReview,
   deleteCourse,
   editCourse,
+  generateVideoUrl,
   getAllCourses,
   getCourseByUser,
   getSingleCourse,
   uploadCourse,
+  getAdminAllCourses,
 } from "../controllers/course.controller";
+import { updateAccessToken } from "../controllers/user.controller";
 const courseRouter = express.Router();
 
 courseRouter.post(
   "/create-course",
+  updateAccessToken,
   isAutheticated,
   authorizeRole("admin"),
   uploadCourse
@@ -23,6 +27,7 @@ courseRouter.post(
 
 courseRouter.put(
   "/edit-course/:id",
+  updateAccessToken,
   isAutheticated,
   authorizeRole("admin"),
   editCourse
@@ -32,16 +37,39 @@ courseRouter.get("/get-course/:id", getSingleCourse);
 
 courseRouter.get("/get-courses", getAllCourses);
 
-courseRouter.get("/get-course-content/:id", isAutheticated, getCourseByUser);
+courseRouter.get(
+  "/get-admin-courses",
+  isAutheticated,
+  authorizeRole("admin"),
+  getAdminAllCourses
+);
 
-courseRouter.put("/add-question", isAutheticated, addQuestion);
+courseRouter.get(
+  "/get-course-content/:id",
+  updateAccessToken,
+  isAutheticated,
+  getCourseByUser
+);
 
-courseRouter.put("/add-answer", isAutheticated, addAnswer);
+courseRouter.put(
+  "/add-question",
+  updateAccessToken,
+  isAutheticated,
+  addQuestion
+);
 
-courseRouter.put("/add-review/:id", isAutheticated, addReview);
+courseRouter.put("/add-answer", updateAccessToken, isAutheticated, addAnswer);
+
+courseRouter.put(
+  "/add-review/:id",
+  updateAccessToken,
+  isAutheticated,
+  addReview
+);
 
 courseRouter.put(
   "/add-reply",
+  updateAccessToken,
   isAutheticated,
   authorizeRole("admin"),
   addReplyToReview
@@ -49,13 +77,17 @@ courseRouter.put(
 
 courseRouter.put(
   "/get-courses",
+  updateAccessToken,
   isAutheticated,
   authorizeRole("admin"),
   getAllCourses
 );
 
+courseRouter.post("/getVdoCipherOTP", generateVideoUrl);
+
 courseRouter.delete(
-  "/delete-courses/:id",
+  "/delete-course/:id",
+  updateAccessToken,
   isAutheticated,
   authorizeRole("admin"),
   deleteCourse

@@ -1,9 +1,17 @@
-import type { Metadata } from 'next'
-import { Inter } from 'next/font/google'
-import './globals.css'
+'use client';
+import './globals.css';
 import { Poppins } from "next/font/google";
 import { Josefin_Sans } from "next/font/google";
 import { ThemeProvider } from "./utils/theme-provider";
+import { Toaster } from "react-hot-toast";
+import { Providers } from "./Provider";
+import { SessionProvider } from "next-auth/react";
+import { useLoadUserQuery } from '@/redux/features/api/apiSlice';
+import Loader from "./components/Loader/Loader"
+import { FC } from 'react';
+
+
+
 
 const poppins = Poppins({
   subsets: ["latin"],
@@ -17,8 +25,6 @@ const josefin = Josefin_Sans({
   variable: "--font-Josefin",
 });
 
-
-
 export default function RootLayout({
   children,
 }: {
@@ -27,10 +33,23 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={`${poppins.variable} ${josefin.variable}  !bg-white bg-no-repeat dark:bg-gradient-to-b dark:from-gray-900 dark:to-black duration-300`}>
-        <ThemeProvider attribute='class' defaultTheme='system' enableSystem>
-          {children}
-        </ThemeProvider>
+        <Providers>
+          <SessionProvider>
+            <ThemeProvider attribute='class' defaultTheme='system' enableSystem>
+              <Custom>
+                <div>{children}</div>
+              </Custom>
+              <Toaster position='top-center' reverseOrder={false} />
+            </ThemeProvider>
+          </SessionProvider>
+        </Providers>
       </body>
     </html>
   )
 }
+const Custom: FC<{ children: React.ReactNode }> = ({ children }) => {
+  const { isLoading } = useLoadUserQuery({});
+
+
+  return <div>{isLoading ? <Loader /> : <div>{children} </div>}</div>;
+};

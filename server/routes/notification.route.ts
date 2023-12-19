@@ -4,10 +4,12 @@ import {
   getNotifications,
   updateNotification,
 } from "../controllers/notification.controller";
+import { updateAccessToken } from "../controllers/user.controller";
 const notficationRoute = express.Router();
 
 notficationRoute.get(
   "/get-all-notifications",
+  updateAccessToken,
   isAutheticated,
   authorizeRole("admin"),
   getNotifications
@@ -15,6 +17,7 @@ notficationRoute.get(
 
 notficationRoute.put(
   "/update-notification/:id",
+  updateAccessToken,
   isAutheticated,
   authorizeRole("admin"),
   updateNotification

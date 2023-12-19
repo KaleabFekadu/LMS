@@ -1,7 +1,7 @@
 import mongoose, { Document, Model, Schema } from "mongoose";
 import { IUser } from "./user.model";
 
-interface IComment extends Document {
+export interface IComment extends Document {
   user: IUser;
   question: string;
   questionReplies: IComment[];
@@ -9,7 +9,7 @@ interface IComment extends Document {
 
 interface IReview extends Document {
   user: IUser;
-  rating: number;
+  rating?: number;
   comment: string;
   commentReplies?: IReview[];
 }
@@ -23,18 +23,19 @@ interface ICourseData extends Document {
   title: string;
   description: string;
   videoUrl: string;
-  videoThumbail: object;
+  videoThumbnail: object;
   videoSection: string;
   videoLength: number;
   videoPlayer: string;
   links: ILink[];
-  suggestions: string;
+  suggestion: string;
   questions: IComment[];
 }
 
-interface ICourse extends Document {
+export interface ICourse extends Document {
   name: string;
   description: string;
+  categories: string;
   price: number;
   estimatedPrice?: number;
   thumbnail: object;
@@ -46,36 +47,46 @@ interface ICourse extends Document {
   reviews: IReview[];
   courseData: ICourseData[];
   ratings?: number;
-  purchased?: number;
+  purchased: number;
 }
 
-const reviewSchema = new Schema<IReview>({
-  user: Object,
-  rating: { type: Number, default: 0 },
-  comment: String,
-  commentReplies: [Object],
-});
+const reviewSchema = new Schema<IReview>(
+  {
+    user: Object,
+    rating: {
+      type: Number,
+      default: 0,
+    },
+    comment: String,
+    commentReplies: [Object],
+  },
+  { timestamps: true }
+);
 
 const linkSchema = new Schema<ILink>({
   title: String,
   url: String,
 });
 
-const commentSchema = new Schema<IComment>({
-  user: Object,
-  question: String,
-  questionReplies: [Object],
-});
+const commentSchema = new Schema<IComment>(
+  {
+    user: Object,
+    question: String,
+    questionReplies: [Object],
+  },
+  { timestamps: true }
+);
 
 const courseDataSchema = new Schema<ICourseData>({
   videoUrl: String,
+  videoThumbnail: Object,
   title: String,
   videoSection: String,
   description: String,
   videoLength: Number,
   videoPlayer: String,
   links: [linkSchema],
-  suggestions: String,
+  suggestion: String,
   questions: [commentSchema],
 });
 
@@ -86,6 +97,10 @@ const courseSchema = new Schema<ICourse>(
       required: true,
     },
     description: {
+      type: String,
+      required: true,
+    },
+    categories: {
       type: String,
       required: true,
     },

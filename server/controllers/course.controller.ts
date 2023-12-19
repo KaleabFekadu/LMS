@@ -10,6 +10,7 @@ import ejs from "ejs";
 import path from "path";
 import sendMail from "../utils/sendMail";
 import NotificationModel from "../models/notificationModel";
+import axios from "axios";
 
 //upload course
 export const uploadCourse = CatchAsyncError(
@@ -39,9 +40,15 @@ export const editCourse = CatchAsyncError(
   async (req: Request, res: Response, next: NextFunction) => {
     try {
       const data = req.body;
+
       const thumbnail = data.thumbnail;
-      if (thumbnail) {
-        await cloudinary.v2.uploader.destroy(thumbnail.public_id);
+
+      const courseId = req.params.id;
+
+      const courseData = (await CourseModel.findById(courseId)) as any;
+
+      if (thumbnail && !thumbnail.startsWith("https")) {
+        await cloudinary.v2.uploader.destroy(courseData.thumbnail.public_id);
 
         const myCloud = await cloudinary.v2.uploader.upload(thumbnail, {
           folder: "courses",
@@ -52,11 +59,19 @@ export const editCourse = CatchAsyncError(
           url: myCloud.secure_url,
         };
       }
-      const courseId = req.params.id;
+
+      if (thumbnail.startsWith("https")) {
+        data.thumbnail = {
+          public_id: courseData?.thumbnail.public_id,
+          url: courseData?.thumbnail.url,
+        };
+      }
 
       const course = await CourseModel.findByIdAndUpdate(
         courseId,
-        { $set: data },
+        {
+          $set: data,
+        },
         { new: true }
       );
 
@@ -101,30 +116,18 @@ export const getSingleCourse = CatchAsyncError(
   }
 );
 
-//get all courses -- withut purchasing
+//get all courses -- without purchasing
 export const getAllCourses = CatchAsyncError(
   async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const isCacheExist = await redis.get("allcourses");
-      if (isCacheExist) {
-        const courses = JSON.parse(isCacheExist);
+      const courses = await CourseModel.find().select(
+        "-courseData.videoUrl -courseData.suggestion -courseData.questions -courseData.links"
+      );
 
-        res.status(200).json({
-          success: true,
-          courses,
-        });
-      } else {
-        const courses = await CourseModel.find().select(
-          "-courseData.videoUrl -courseData.suggestion -courseData.questions -courseData.links"
-        );
-
-        await redis.set("allcourses", JSON.stringify(courses));
-
-        res.status(200).json({
-          success: true,
-          courses,
-        });
-      }
+      res.status(200).json({
+        success: true,
+        courses,
+      });
     } catch (error: any) {
       return next(new ErrorHandler(error.message, 500));
     }
@@ -396,7 +399,7 @@ export const addReplyToReview = CatchAsyncError(
 
 //get all courses --- only for admin
 
-export const getAllUsers = CatchAsyncError(
+export const getAdminAllCourses = CatchAsyncError(
   async (req: Request, res: Response, next: NextFunction) => {
     try {
       getAllCoursesService(res);
@@ -424,6 +427,28 @@ export const deleteCourse = CatchAsyncError(
       res
         .status(200)
         .json({ success: true, message: "Course Successfully Deleted" });
+    } catch (error: any) {
+      return next(new ErrorHandler(error.message, 400));
+    }
+  }
+);
+// generate video url
+export const generateVideoUrl = CatchAsyncError(
+  async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const { videoId } = req.body;
+      const response = await axios.post(
+        `https://dev.vdocipher.com/api/videos/${videoId}/otp`,
+        { ttl: 300 },
+        {
+          headers: {
+            Accept: "application/json",
+            "Content-Type": "application/json",
+            Authorization: `Apisecret ${process.env.VDOCIPHER_API_SECRET}`,
+          },
+        }
+      );
+      res.json(response.data);
     } catch (error: any) {
       return next(new ErrorHandler(error.message, 400));
     }
